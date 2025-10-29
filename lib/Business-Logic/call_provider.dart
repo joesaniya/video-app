@@ -144,7 +144,8 @@ class CallProvider extends ChangeNotifier {
     await _engine.startPreview();
 
     await _engine.joinChannel(
-      token: token,
+      token:
+          '007eJxTYFhgydf4pkNMpmGVV8PUGXXdj69Imy9a45Z/WX362gNr2fgVGIxN08zMUw3SUgzNDU1SkwyTLFKMUhKTjQwsDFONks0TLa2ZMhsCGRmCkvhYGBkgEMRnZShJLS4xZGAAABL1HZw=',
       channelId: 'test1',
       uid: 0,
       options: const ChannelMediaOptions(
