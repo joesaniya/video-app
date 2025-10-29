@@ -103,6 +103,91 @@ class _HomeViewState extends State<_HomeView>
                           child: FadeTransition(
                             opacity: _fadeAnimation,
                             child: HomeHeader(
+                              username:
+                                  homeProvider.currentUser?.name ?? 'Guest',
+                              title: "Call and Meet",
+                              onLogout: () => controller.logout(context),
+                            ),
+                          ),
+                        ),
+                      ),
+
+                      // ✅ Offline banner
+                      if (homeProvider.isOffline)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: const [
+                                  Icon(Icons.wifi_off, color: Colors.red),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Offline Mode: Showing cached data',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+
+                      // Users List (existing)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                        sliver: homeProvider.otherUsers.isEmpty
+                            ? SliverToBoxAdapter(
+                                child: FadeTransition(
+                                  opacity: _fadeAnimation,
+                                  child: EmptyUsersWidget(),
+                                ),
+                              )
+                            : SliverList(
+                                delegate: SliverChildBuilderDelegate((
+                                  context,
+                                  index,
+                                ) {
+                                  final user = homeProvider.otherUsers[index];
+                                  return AnimationConfiguration.staggeredList(
+                                    position: index,
+                                    delay: const Duration(milliseconds: 100),
+                                    child: SlideAnimation(
+                                      verticalOffset: 30.0,
+                                      duration: const Duration(
+                                        milliseconds: 400,
+                                      ),
+                                      child: FadeInAnimation(
+                                        child: UserListItem(
+                                          user: user,
+                                          index: index,
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                }, childCount: homeProvider.otherUsers.length),
+                              ),
+                      ),
+                    ],
+                  ),
+
+                  /*  child: CustomScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    slivers: [
+                      // Header Animation
+                      SliverToBoxAdapter(
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: FadeTransition(
+                            opacity: _fadeAnimation,
+                            child: HomeHeader(
                               username: homeProvider.currentUser!.name,
                               title: "Call and Meet",
                               onLogout: () => controller.logout(context),
@@ -148,6 +233,7 @@ class _HomeViewState extends State<_HomeView>
                       ),
                     ],
                   ),
+                */
                 ),
               ),
       ),

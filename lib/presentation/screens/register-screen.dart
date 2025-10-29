@@ -116,16 +116,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     final result = await authProvider
                                         .handleRegistration();
 
-                                    if (result['success']) {
+                                    // ✅ Safe null checks
+                                    final success =
+                                        result != null &&
+                                        result['success'] == true;
+                                    final message =
+                                        result?['message'] ??
+                                        'Something went wrong';
+
+                                    if (success) {
                                       final username =
                                           await LocalStorageService.getUsername();
+
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
                                         SnackBar(
                                           backgroundColor: Colors.green,
                                           content: Text(
-                                            result['message'],
+                                            message,
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
@@ -133,6 +142,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       );
 
+                                      // ✅ Navigate safely after short delay
                                       Future.delayed(
                                         const Duration(seconds: 1),
                                         () {
@@ -142,7 +152,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             MaterialPageRoute(
                                               builder: (context) => CallScreen(
                                                 meetingId: 'test1',
-
                                                 username: username!,
                                                 onCallEnded: () {
                                                   Navigator.pushReplacement(
@@ -166,7 +175,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         SnackBar(
                                           backgroundColor: Colors.redAccent,
                                           content: Text(
-                                            result['message'],
+                                            message,
                                             style: const TextStyle(
                                               color: Colors.white,
                                             ),
