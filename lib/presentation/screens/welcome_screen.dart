@@ -53,9 +53,7 @@ class WelcomeScreen extends StatelessWidget {
                       color: AppColors().whiteColor,
                       borderRadius: BorderRadius.circular(20),
                       image: const DecorationImage(
-                        image: NetworkImage(
-                          'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=400',
-                        ),
+                        image: AssetImage('assets/images/get-started.jpg'),
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -89,12 +87,22 @@ class WelcomeScreen extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        'Skip',
-                        style: GoogleFonts.poppins(
-                          color: AppColors().whiteColor,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
+                            (Route<dynamic> route) => false,
+                          );
+                        },
+                        child: Text(
+                          'Skip',
+                          style: GoogleFonts.poppins(
+                            color: AppColors().whiteColor,
 
-                          fontSize: 16,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                       ElevatedButtonWidget(

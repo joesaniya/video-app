@@ -10,7 +10,6 @@ class AuthProvider extends ChangeNotifier {
 
   bool isLoading = false;
 
- 
   final lIemailControllerController = TextEditingController();
   final lIpasswordController = TextEditingController();
   final nameController = TextEditingController();
@@ -28,7 +27,6 @@ class AuthProvider extends ChangeNotifier {
   static const String baseUrl =
       "https://68ff815be02b16d1753e4119.mockapi.io/users/UsersData";
 
-  
   String? validateName(String? value) {
     if (value == null || value.trim().isEmpty) return 'Full name is required';
     if (value.trim().length < 3) return 'Enter at least 3 characters';
@@ -54,7 +52,6 @@ class AuthProvider extends ChangeNotifier {
     return null;
   }
 
-   
   Future<Map<String, dynamic>> handleRegistration() async {
     if (!regformKey.currentState!.validate()) {
       return {'success': false, 'message': 'Please fill all fields correctly'};
@@ -69,7 +66,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (success != null) {
         // LocalStorageService.saveUserData(UserModel.fromJson(success));
-        LocalStorageService.saveUser(UserModel.fromJson(success));
+        await LocalStorageService.saveUser(UserModel.fromJson(success));
         clearRegistrationFields();
         return {'success': true, 'message': 'Registration successful 🎉'};
       } else {
@@ -89,7 +86,6 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-     
       final response = await _dioClient.performCall(
         requestType: RequestType.get,
         url: baseUrl,
@@ -98,7 +94,6 @@ class AuthProvider extends ChangeNotifier {
       if (response != null && response.statusCode == 200) {
         final List<dynamic> users = response.data;
 
-      
         final existingUser = users.firstWhere(
           (u) => u['email'].toString().toLowerCase() == email.toLowerCase(),
           orElse: () => null,
@@ -108,11 +103,10 @@ class AuthProvider extends ChangeNotifier {
           isLoading = false;
           notifyListeners();
           log(" Duplicate email found: ${existingUser['email']}");
-          return null; 
+          return null;
         }
       }
 
-  
       final createResponse = await _dioClient.performCall(
         requestType: RequestType.post,
         url: baseUrl,
@@ -142,7 +136,6 @@ class AuthProvider extends ChangeNotifier {
     return null;
   }
 
-  
   Future<Map<String, dynamic>> handleLogin() async {
     if (!logInformKey.currentState!.validate()) {
       return {'success': false, 'message': 'Please fill all fields correctly'};
@@ -156,7 +149,7 @@ class AuthProvider extends ChangeNotifier {
 
       if (user != null) {
         // await LocalStorageService.saveUserData(UserModel.fromJson(user));
-await LocalStorageService.saveUser(UserModel.fromJson(user));
+        await LocalStorageService.saveUser(UserModel.fromJson(user));
         clearLoginFields();
         return {'success': true, 'message': 'Login successful 🎉'};
       } else {
@@ -204,11 +197,9 @@ await LocalStorageService.saveUser(UserModel.fromJson(user));
     return null;
   }
 
-
   Future<UserModel?> loadUserData() async {
     return await LocalStorageService.getUserData();
   }
-
 
   Future<void> logout(BuildContext context) async {
     await LocalStorageService.clearUserData();
@@ -219,7 +210,6 @@ await LocalStorageService.saveUser(UserModel.fromJson(user));
       (Route<dynamic> route) => false,
     );
   }
-
 
   void clearRegistrationFields() {
     nameController.clear();

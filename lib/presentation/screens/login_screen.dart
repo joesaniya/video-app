@@ -190,7 +190,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           TextSpan(
                             text: "Register",
                             style: GoogleFonts.poppins(
-                              color: Colors.blueAccent,
+                              color: AppColors().bgColor,
                               fontWeight: FontWeight.bold,
                             ),
                             recognizer: TapGestureRecognizer()
@@ -217,4 +217,3 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 }
- 

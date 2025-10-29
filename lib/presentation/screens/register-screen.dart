@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -116,7 +118,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     final result = await authProvider
                                         .handleRegistration();
 
-                                    // ✅ Safe null checks
+                                   
                                     final success =
                                         result != null &&
                                         result['success'] == true;
@@ -127,7 +129,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     if (success) {
                                       final username =
                                           await LocalStorageService.getUsername();
-
+                                      log('Reg us:$username');
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -142,7 +144,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         ),
                                       );
 
-                                      // ✅ Navigate safely after short delay
                                       Future.delayed(
                                         const Duration(seconds: 1),
                                         () {
@@ -204,7 +205,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             TextSpan(
                               text: "Sign in",
                               style: GoogleFonts.poppins(
-                                color: Colors.blueAccent,
+                                color: AppColors().bgColor,
                                 fontWeight: FontWeight.bold,
                               ),
                               recognizer: TapGestureRecognizer()
