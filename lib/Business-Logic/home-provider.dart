@@ -189,8 +189,7 @@ class HomeProvider extends ChangeNotifier {
       "https://68ff815be02b16d1753e4119.mockapi.io/users/UsersData";
   final DioClient _dioClient = DioClient();
 
-  BuildContext? _context; // ✅ keep reference for snackbar
-
+  BuildContext? _context;
   HomeProvider({BuildContext? context}) {
     _context = context;
     _connectivity = Connectivity();
@@ -206,12 +205,12 @@ class HomeProvider extends ChangeNotifier {
       final result = results.first;
 
       if (result != ConnectivityResult.none && _isOffline) {
-        log('🌐 Internet reconnected → refreshing data...');
-        _showSnackBar("✅ Internet reconnected — refreshing data...");
+        log(' Internet reconnected → refreshing data...');
+        _showSnackBar(" Internet reconnected — refreshing data...");
         await loadData();
       } else if (result == ConnectivityResult.none) {
         _isOffline = true;
-        _showSnackBar("⚠️ You are offline");
+        _showSnackBar(" You are offline");
         notifyListeners();
       }
     });
@@ -222,7 +221,6 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      // ✅ Load cached data first (instant display)
       final cachedUsers = await LocalStorageService.getCachedUsers();
       if (cachedUsers.isNotEmpty) {
         _otherUsers = cachedUsers;
@@ -232,7 +230,6 @@ class HomeProvider extends ChangeNotifier {
       final loggedUser = await LocalStorageService.getUserData();
       _currentUser = loggedUser;
 
-      // ✅ Try API
       final response = await _dioClient.performCall(
         requestType: RequestType.get,
         url: _apiUrl,
@@ -257,12 +254,11 @@ class HomeProvider extends ChangeNotifier {
           _otherUsers = allUsers;
         }
 
-        // ✅ Cache users
         await LocalStorageService.saveCachedUsers(_otherUsers);
         _isOffline = false;
       } else {
         _isOffline = true;
-        log('⚠️ Using cached users (network fetch failed).');
+        log(' Using cached users (network fetch failed).');
       }
 
       if (_searchQuery.isNotEmpty) {
