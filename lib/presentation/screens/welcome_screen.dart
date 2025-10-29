@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_call_app/presentation/screens/login_screen.dart';
-import 'package:video_call_app/presentation/screens/register-screen.dart';
 import 'package:video_call_app/presentation/utils/appcolors.dart';
 import 'package:video_call_app/presentation/widgets/elevated-button.dart';
 

@@ -7,10 +7,16 @@ import 'package:video_call_app/presentation/widgets/custom_search_button.dart';
 import 'package:video_call_app/presentation/widgets/row_action_button.dart';
 
 class HomeHeader extends StatelessWidget {
+  final String username;
   final String title;
   final VoidCallback onLogout;
 
-  const HomeHeader({super.key, required this.title, required this.onLogout});
+  const HomeHeader({
+    super.key,
+    required this.username,
+    required this.title,
+    required this.onLogout,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +31,6 @@ class HomeHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Top Bar with Title and Logout
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -47,23 +52,29 @@ class HomeHeader extends StatelessWidget {
               ),
             ],
           ),
+          const SizedBox(height: 10),
+          Text(
+            'Welcome, $username',
+            style: GoogleFonts.poppins(
+              fontSize: 18,
+              fontWeight: FontWeight.w200,
+              color: colors.whiteColor,
+            ),
+          ),
           const SizedBox(height: 20),
 
-          // Search Bar
           CustomSearchBar(
             hintText: 'Search users...',
             onChanged: (query) {
               homeProvider.searchUsers(query);
             },
           ),
-          // CustomSearchBar(),
+
           const SizedBox(height: 20),
 
-          // Action Buttons Row
           ActionButtonsRow(username: Name),
           const SizedBox(height: 25),
 
-          // Today Label
           Text(
             "Today",
             style: GoogleFonts.poppins(
