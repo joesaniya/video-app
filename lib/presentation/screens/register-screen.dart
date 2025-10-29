@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:video_call_app/Business-Logic/auth-provider.dart';
+import 'package:video_call_app/Business-Logic/local_storage.dart';
+import 'package:video_call_app/presentation/screens/Call_screen.dart';
+import 'package:video_call_app/presentation/screens/home_screen.dart';
 import 'package:video_call_app/presentation/screens/login_screen.dart';
-import 'package:video_call_app/presentation/screens/main_screen.dart';
 import 'package:video_call_app/presentation/utils/appcolors.dart';
 import 'package:video_call_app/presentation/widgets/custom-textfield.dart';
 import 'package:video_call_app/presentation/widgets/custom_password_field.dart';
@@ -115,6 +117,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                         .handleRegistration();
 
                                     if (result['success']) {
+                                      final username =
+                                          await LocalStorageService.getUsername();
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
@@ -136,8 +140,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                             context,
                                           ).pushAndRemoveUntil(
                                             MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const MainNavigationScreen(),
+                                              builder: (context) => CallScreen(
+                                                meetingId: 'test1',
+
+                                                username: username!,
+                                                onCallEnded: () {
+                                                  Navigator.pushReplacement(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (_) =>
+                                                          HomeScreen(),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
                                             ),
                                             (Route<dynamic> route) => false,
                                           );

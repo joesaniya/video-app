@@ -1,3 +1,4 @@
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,7 +15,6 @@ class UserListItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors();
 
-    
     final times = ['11:20 AM', '1:20 AM', '11:42 AM', '11:20 AM'];
     final messages = [
       'Hey there!',
@@ -32,6 +32,12 @@ class UserListItem extends StatelessWidget {
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         leading: UserAvatar(name: user.name, index: index),
+        onTap: () {
+          log('Selected user: ${user.email}');
+          final channelName = user.email;
+          if (channelName.isNotEmpty) {}
+        },
+
         title: Text(
           user.name,
           style: GoogleFonts.poppins(
@@ -59,9 +65,6 @@ class UserListItem extends StatelessWidget {
             fontSize: 12,
           ),
         ),
-        onTap: () {
-          // Handle user tap - navigate to chat/call
-        },
       ),
     );
   }

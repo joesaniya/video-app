@@ -1,8 +1,12 @@
+import 'dart:developer';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:video_call_app/Business-Logic/auth-provider.dart';
+import 'package:video_call_app/Business-Logic/local_storage.dart';
+import 'package:video_call_app/presentation/screens/Call_screen.dart';
 import 'package:video_call_app/presentation/screens/home_screen.dart';
 import 'package:video_call_app/presentation/screens/register-screen.dart';
 import 'package:video_call_app/presentation/utils/appcolors.dart';
@@ -111,6 +115,9 @@ class _LoginScreenState extends State<LoginScreen> {
                                       .handleLogin();
 
                                   if (result['success']) {
+                                    final username =
+                                        await LocalStorageService.getUsername();
+                                    log('Login user Name:$username');
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         backgroundColor: Colors.green,
@@ -130,8 +137,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                           context,
                                         ).pushAndRemoveUntil(
                                           MaterialPageRoute(
-                                            builder: (context) =>
-                                                const HomeScreen(),
+                                            builder: (context) => CallScreen(
+                                              meetingId: 'test1',
+
+                                              username: username!,
+                                              onCallEnded: () {
+                                                Navigator.pushReplacement(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (_) =>
+                                                        HomeScreen(),
+                                                  ),
+                                                );
+                                              },
+                                            ),
                                           ),
                                           (Route<dynamic> route) => false,
                                         );

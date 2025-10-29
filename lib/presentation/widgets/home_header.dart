@@ -16,6 +16,10 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = AppColors();
     final homeProvider = Provider.of<HomeProvider>(context, listen: false);
+    final Name = Provider.of<HomeProvider>(
+      context,
+      listen: false,
+    ).currentUser!.name;
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       child: Column(
@@ -56,7 +60,7 @@ class HomeHeader extends StatelessWidget {
           const SizedBox(height: 20),
 
           // Action Buttons Row
-          const ActionButtonsRow(),
+          ActionButtonsRow(username: Name),
           const SizedBox(height: 25),
 
           // Today Label

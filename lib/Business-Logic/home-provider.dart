@@ -10,7 +10,7 @@ class HomeProvider extends ChangeNotifier {
   List<UserModel> _otherUsers = [];
   List<UserModel> _filteredUsers = [];
   bool _isLoading = false;
-  String _searchQuery = ''; 
+  String _searchQuery = '';
 
   UserModel? get currentUser => _currentUser;
   List<UserModel> get otherUsers =>
@@ -28,11 +28,9 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-     
       final loggedUser = await LocalStorageService.getUserData();
       _currentUser = loggedUser;
 
-   
       final response = await _dioClient.performCall(
         requestType: RequestType.get,
         url: _apiUrl,
@@ -58,7 +56,6 @@ class HomeProvider extends ChangeNotifier {
           _otherUsers = allUsers;
         }
 
-      
         if (_searchQuery.isNotEmpty) {
           _filterUsers(_searchQuery);
         }
@@ -76,7 +73,6 @@ class HomeProvider extends ChangeNotifier {
     }
   }
 
-  
   void searchUsers(String query) {
     _searchQuery = query;
     _filterUsers(query);
@@ -98,13 +94,13 @@ class HomeProvider extends ChangeNotifier {
     }).toList();
   }
 
- 
   void clearSearch() {
     _searchQuery = '';
     _filteredUsers = [];
     notifyListeners();
   }
-} // import 'dart:convert';
+}
+// import 'dart:convert';
 // import 'dart:developer';
 // import 'package:flutter/material.dart';
 // import 'package:video_call_app/Business-Logic/local_storage.dart';
