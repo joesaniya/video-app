@@ -4,8 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:video_call_app/presentation/screens/Call_screen.dart';
-import 'package:video_call_app/presentation/screens/home_screen.dart';
-import 'package:video_call_app/presentation/screens/main_screen.dart';
+
 import 'package:video_call_app/presentation/screens/welcome_screen.dart';
 
 class SplashProvider extends ChangeNotifier {

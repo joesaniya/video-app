@@ -2,8 +2,7 @@ import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:video_call_app/Business-Logic/call_provider.dart';
-import 'package:video_call_app/presentation/widgets/call_control_button.dart';
-
+import 'package:video_call_app/presentation/utils/appcolors.dart';
 
 class RemoteVideoWidget extends StatelessWidget {
   final CallProvider provider;
@@ -18,11 +17,10 @@ class RemoteVideoWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  
+    final colors = AppColors();
     if (provider.remoteUid != null) {
       return Stack(
         children: [
-        
           AgoraVideoView(
             controller: VideoViewController.remote(
               rtcEngine: provider.engine,
@@ -31,10 +29,9 @@ class RemoteVideoWidget extends StatelessWidget {
             ),
           ),
 
-
           if (provider.remoteUid != null && provider.isRemoteCameraOff)
             Container(
-              color: Colors.black,
+              color: colors.bgColor,
               child: Center(
                 child: Text(
                   remoteUsername.isNotEmpty
@@ -52,9 +49,8 @@ class RemoteVideoWidget extends StatelessWidget {
       );
     }
 
-   
     return Container(
-      color: Colors.black,
+      color: colors.bgColor,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

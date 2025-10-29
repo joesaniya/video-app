@@ -11,13 +11,13 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => ProfileProvider()..loadUserData(),
-      child: const _ProfileView(),
+      child: const ProfileView(),
     );
   }
 }
 
-class _ProfileView extends StatelessWidget {
-  const _ProfileView({super.key});
+class ProfileView extends StatelessWidget {
+  const ProfileView();
 
   @override
   Widget build(BuildContext context) {
@@ -33,13 +33,12 @@ class _ProfileView extends StatelessWidget {
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 slivers: [
-                 
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.all(20),
                       child: Column(
                         children: [
-                       Container(
+                          Container(
                             width: 120,
                             height: 120,
                             decoration: BoxDecoration(
@@ -62,7 +61,7 @@ class _ProfileView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
-                         Text(
+                          Text(
                             profileProvider.currentUser?.name ?? 'User Name',
                             style: TextStyle(
                               color: colors.whiteColor,
@@ -71,7 +70,7 @@ class _ProfileView extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 4),
-                        Text(
+                          Text(
                             profileProvider.currentUser?.email ??
                                 'user@example.com',
                             style: TextStyle(
@@ -84,7 +83,6 @@ class _ProfileView extends StatelessWidget {
                     ),
                   ),
 
-            
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -114,7 +112,6 @@ class _ProfileView extends StatelessWidget {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 20)),
 
-                
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -132,7 +129,6 @@ class _ProfileView extends StatelessWidget {
 
                   const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
-                 
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     sliver: SliverList(
@@ -334,7 +330,7 @@ class _ProfileView extends StatelessWidget {
           ),
           TextButton(
             onPressed: () {
-           Navigator.pop(context);
+              Navigator.pop(context);
             },
             child: Text(
               'Save',

@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:video_call_app/Business-Logic/join_meeting_provider.dart';
 import 'package:video_call_app/presentation/screens/Call_screen.dart';
 import 'package:video_call_app/presentation/screens/home_screen.dart';
-import 'package:video_call_app/presentation/utils/appcolors.dart';
+
 
 class JoinMeetingDialog extends StatelessWidget {
   final String username;
@@ -12,7 +12,7 @@ class JoinMeetingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = AppColors();
+  
 
     return ChangeNotifierProvider(
       create: (_) => MeetingJoinProvider(),
