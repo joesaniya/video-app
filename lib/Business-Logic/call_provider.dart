@@ -28,6 +28,10 @@ class CallProvider extends ChangeNotifier {
   bool get isScreenSharing => _isScreenSharing;
   int get callDuration => _callDuration;
   bool get isInitialized => _isInitialized;
+  bool _isRemoteCameraOff = false;
+  bool get isRemoteCameraOff => _isRemoteCameraOff;
+  String _remoteUsername = '';
+  String get remoteUsername => _remoteUsername;
 
   // Initialize Agora
   Future<void> initialize() async {
@@ -74,6 +78,7 @@ class CallProvider extends ChangeNotifier {
           log("remote user $remoteUid joined");
           if (!_isDisposed) {
             _remoteUid = remoteUid;
+            _remoteUsername = 'Guest';
             notifyListeners();
           }
         },
@@ -109,6 +114,25 @@ class CallProvider extends ChangeNotifier {
                     notifyListeners();
                   }
                 }
+              }
+            },
+        onRemoteVideoStateChanged:
+            (
+              RtcConnection connection,
+              int remoteUid,
+              RemoteVideoState state,
+              RemoteVideoStateReason reason,
+              int elapsed,
+            ) {
+              log('Remote video state changed: $state, reason: $reason');
+              if (!_isDisposed) {
+                if (state == RemoteVideoState.remoteVideoStateStopped) {
+                  _isRemoteCameraOff = true;
+                } else if (state == RemoteVideoState.remoteVideoStateDecoding ||
+                    state == RemoteVideoState.remoteVideoStateStarting) {
+                  _isRemoteCameraOff = false;
+                }
+                notifyListeners();
               }
             },
       ),
@@ -159,10 +183,28 @@ class CallProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void toggleCamera() {
-    _isCameraOff = !_isCameraOff;
-    _engine.muteLocalVideoStream(_isCameraOff);
-    notifyListeners();
+  Future<void> toggleCamera() async {
+    try {
+      _isCameraOff = !_isCameraOff;
+
+      // Enable or disable the camera
+      await _engine.enableLocalVideo(!_isCameraOff);
+
+      // Update channel media options to stop publishing camera track
+      await _engine.updateChannelMediaOptions(
+        ChannelMediaOptions(
+          publishCameraTrack: !_isCameraOff && !_isScreenSharing,
+          publishScreenTrack: _isScreenSharing,
+        ),
+      );
+
+      notifyListeners();
+    } catch (e) {
+      log('Error toggling camera: $e');
+      // Revert state if there's an error
+      _isCameraOff = !_isCameraOff;
+      notifyListeners();
+    }
   }
 
   void switchCamera() {
@@ -202,8 +244,8 @@ class CallProvider extends ChangeNotifier {
     try {
       await _engine.stopScreenCapture();
       await _engine.updateChannelMediaOptions(
-        const ChannelMediaOptions(
-          publishCameraTrack: true,
+        ChannelMediaOptions(
+          publishCameraTrack: !_isCameraOff,
           publishScreenTrack: false,
         ),
       );

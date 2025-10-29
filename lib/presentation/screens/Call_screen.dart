@@ -28,12 +28,11 @@ class _CallScreenState extends State<CallScreen> {
   CallProvider? _provider;
   bool _isInitializing = true;
   String? _initError;
-  bool _hadRemoteUser = false; // Track if remote user was ever present
+  bool _hadRemoteUser = false;
 
   @override
   void initState() {
     super.initState();
-    // Schedule initialization after the first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeCall();
     });
@@ -145,7 +144,6 @@ class _CallScreenState extends State<CallScreen> {
       create: (_) => CallProvider(),
       child: Consumer<CallProvider>(
         builder: (context, provider, child) {
-          // Assign provider reference
           _provider = provider;
 
           if (_isInitializing) {
@@ -155,7 +153,6 @@ class _CallScreenState extends State<CallScreen> {
             );
           }
 
-          // Show error if initialization failed
           if (_initError != null) {
             return Scaffold(
               backgroundColor: colors.bgColor,
@@ -200,19 +197,17 @@ class _CallScreenState extends State<CallScreen> {
             );
           }
 
-          // Track when remote user joins
           if (provider.remoteUid != null && !_hadRemoteUser) {
             _hadRemoteUser = true;
           }
 
-          // Only show dialog if remote user LEFT (not if they never joined)
           if (provider.remoteUid == null &&
               provider.localUserJoined &&
               _hadRemoteUser) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (mounted) {
                 _showRemoteUserLeftDialog();
-                _hadRemoteUser = false; // Reset to prevent multiple dialogs
+                _hadRemoteUser = false;
               }
             });
           }
@@ -228,15 +223,21 @@ class _CallScreenState extends State<CallScreen> {
                     child: _RemoteVideoWidget(
                       provider: provider,
                       meetingId: widget.meetingId,
-                      username: widget.username,
+                      remoteUsername: provider.remoteUsername,
                     ),
                   ),
 
-                  // Top section
+                  // Top section with username and call duration
                   _TopSection(provider: provider, username: widget.username),
 
                   // Screen sharing indicator
                   if (provider.isScreenSharing) _ScreenSharingIndicator(),
+
+                  // Local video preview (bottom, above controls)
+                  _LocalPreviewWidget(
+                    provider: provider,
+                    username: widget.username,
+                  ),
 
                   // Bottom controls
                   _BottomControls(
@@ -254,7 +255,6 @@ class _CallScreenState extends State<CallScreen> {
   }
 }
 
-// Top section widget
 class _TopSection extends StatelessWidget {
   final CallProvider provider;
   final String username;
@@ -286,8 +286,6 @@ class _TopSection extends StatelessWidget {
           ),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,7 +308,33 @@ class _TopSection extends StatelessWidget {
                 ),
               ],
             ),
-            _LocalPreviewWidget(provider: provider),
+            Expanded(child: Container()),
+            !provider.isCameraOff && !provider.isScreenSharing
+                ? Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: provider.switchCamera,
+                      customBorder: const CircleBorder(),
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.black.withOpacity(0.5),
+                          border: Border.all(
+                            color: Colors.white.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.flip_camera_ios,
+                          color: Colors.white,
+                          size: 18,
+                        ),
+                      ),
+                    ),
+                  )
+                : SizedBox(),
           ],
         ),
       ),
@@ -318,27 +342,56 @@ class _TopSection extends StatelessWidget {
   }
 }
 
-// Local preview widget
 class _LocalPreviewWidget extends StatelessWidget {
   final CallProvider provider;
+  final String username;
 
-  const _LocalPreviewWidget({required this.provider});
+  const _LocalPreviewWidget({required this.provider, required this.username});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 90,
-      height: 120,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+    return Positioned(
+      right: 20,
+      bottom: 200, // Above the controls
+      child: Container(
+        width: 100,
+        height: 140,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.white.withOpacity(0.3), width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: _buildPreview(),
       ),
-      clipBehavior: Clip.antiAlias,
-      child: _buildPreview(),
     );
   }
 
   Widget _buildPreview() {
+    // If camera is off, show first letter
+    if (provider.isCameraOff && !provider.isScreenSharing) {
+      return Container(
+        color: Colors.grey[800],
+        child: Center(
+          child: Text(
+            username.isNotEmpty ? username[0].toUpperCase() : '?',
+            style: GoogleFonts.poppins(
+              color: Colors.white,
+              fontSize: 36,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ),
+      );
+    }
+
+    // If screen sharing, show screen preview
     if (provider.isScreenSharing) {
       return AgoraVideoView(
         controller: VideoViewController(
@@ -349,30 +402,33 @@ class _LocalPreviewWidget extends StatelessWidget {
           ),
         ),
       );
-    } else if (provider.localUserJoined) {
+    }
+
+    // Show camera preview
+    if (provider.localUserJoined) {
       return AgoraVideoView(
         controller: VideoViewController(
           rtcEngine: provider.engine,
           canvas: const VideoCanvas(uid: 0),
         ),
       );
-    } else {
-      return Container(
-        color: Colors.grey[800],
-        child: const Center(
-          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-        ),
-      );
     }
+
+    // Loading state
+    return Container(
+      color: Colors.grey[800],
+      child: const Center(
+        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+      ),
+    );
   }
 }
 
-// Screen sharing indicator
 class _ScreenSharingIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      top: MediaQuery.of(context).padding.top + 140,
+      top: MediaQuery.of(context).padding.top + 100,
       left: 20,
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
@@ -400,7 +456,6 @@ class _ScreenSharingIndicator extends StatelessWidget {
   }
 }
 
-// Bottom controls widget
 class _BottomControls extends StatelessWidget {
   final CallProvider provider;
   final VoidCallback onEndCall;
@@ -436,7 +491,7 @@ class _BottomControls extends StatelessWidget {
         ),
         child: Wrap(
           alignment: WrapAlignment.spaceEvenly,
-          spacing: 8,
+          spacing: 16,
           runSpacing: 12,
           children: [
             _ControlButton(
@@ -448,13 +503,8 @@ class _BottomControls extends StatelessWidget {
             _ControlButton(
               icon: provider.isCameraOff ? Icons.videocam_off : Icons.videocam,
               label: 'Camera',
-              onTap: provider.toggleCamera,
+              onTap: () async => await provider.toggleCamera(),
               isActive: provider.isCameraOff,
-            ),
-            _ControlButton(
-              icon: Icons.flip_camera_ios,
-              label: 'Flip',
-              onTap: provider.switchCamera,
             ),
             _ControlButton(
               icon: provider.isScreenSharing
@@ -479,7 +529,6 @@ class _BottomControls extends StatelessWidget {
   }
 }
 
-// Control button widget
 class _ControlButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -542,8 +591,82 @@ class _ControlButton extends StatelessWidget {
   }
 }
 
-// Remote video widget
 class _RemoteVideoWidget extends StatelessWidget {
+  final CallProvider provider;
+  final String meetingId;
+  final String remoteUsername;
+
+  const _RemoteVideoWidget({
+    required this.provider,
+    required this.meetingId,
+    required this.remoteUsername,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // If remote user is connected
+    if (provider.remoteUid != null) {
+      return Stack(
+        children: [
+          // Remote video (if camera is ON)
+          AgoraVideoView(
+            controller: VideoViewController.remote(
+              rtcEngine: provider.engine,
+              canvas: VideoCanvas(uid: provider.remoteUid),
+              connection: RtcConnection(channelId: meetingId),
+            ),
+          ),
+
+          // Overlay fallback if remote camera is OFF
+          if (provider.remoteUid != null && provider.isRemoteCameraOff)
+            Container(
+              color: Colors.black,
+              child: Center(
+                child: Text(
+                  remoteUsername.isNotEmpty
+                      ? remoteUsername[0].toUpperCase()
+                      : '?',
+                  style: GoogleFonts.poppins(
+                    color: Colors.white,
+                    fontSize: 80,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+
+    // Waiting for remote user to join
+    return Container(
+      color: Colors.black,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.person_outline,
+              size: 80,
+              color: Colors.white.withOpacity(0.3),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Waiting for guest to join...',
+              style: GoogleFonts.poppins(
+                color: Colors.white.withOpacity(0.7),
+                fontSize: 16,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/*class _RemoteVideoWidget extends StatelessWidget {
   final CallProvider provider;
   final String meetingId;
   final String username;
@@ -592,3 +715,4 @@ class _RemoteVideoWidget extends StatelessWidget {
     }
   }
 }
+*/
